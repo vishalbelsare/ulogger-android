@@ -60,6 +60,8 @@ class ListWithEditTextPreference extends ListPreference implements Preference.On
 
     }
 
+    @SuppressWarnings("resource")
+    // Don't use auto-closable, breaks lower APIs
     private void init(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         setOnPreferenceChangeListener(this);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ListWithEditTextPreference, defStyleAttr, defStyleRes);

@@ -39,6 +39,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
 import java.util.concurrent.ExecutorService;
@@ -141,6 +142,9 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, SettingsActivity.class);
             settingsLauncher.launch(intent);
             return true;
+        } else if (id == R.id.menu_self_check) {
+            loadSelfCheckFragment();
+            return true;
         } else if (id == R.id.menu_about) {
             showAbout();
             return true;
@@ -155,6 +159,25 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Load SelfCheckFragment or run it's self check action if already loaded
+     */
+    private void loadSelfCheckFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_placeholder);
+        if (currentFragment instanceof SelfCheckFragment) {
+            if (Logger.DEBUG) { Log.d(TAG, "[SelfCheckFragment already loaded]"); }
+            ((SelfCheckFragment) currentFragment).setRefreshing(true);
+            ((SelfCheckFragment) currentFragment).selfCheck();
+            return;
+        }
+        SelfCheckFragment fragment = new SelfCheckFragment();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment_placeholder, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     /**

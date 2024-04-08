@@ -5,6 +5,9 @@ Application works in background. Track points are saved automatically at chosen 
 This client works with [μlogger web server](https://github.com/bfabiszewski/ulogger-server). 
 Together they make a complete self owned and controlled client–server solution.
 
+## Download
+[![Download from f-droid](https://img.shields.io/f-droid/v/net.fabiszewski.ulogger.svg?color=green)](https://f-droid.org/app/net.fabiszewski.ulogger)
+
 ## Features
 - meant to be simple and small (*μ*)
 - low memory and battery impact
@@ -15,13 +18,16 @@ Together they make a complete self owned and controlled client–server solution
 - allows adding waypoints with attached images and comments (required μlogger server version 1.0+ for synchronization)
 - configurable tracking settings
 - export to GPX format
+- self-check screen for basic diagnostics
 - automation
 
 ## Screenshots
 <img alt="main" src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot1.png" width="30%"> <img alt="waypoint" src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot2.png" width="30%"> <img alt="settings" src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot3.png" width="30%">
 
-## Download
-[![Download from f-droid](https://img.shields.io/f-droid/v/net.fabiszewski.ulogger.svg?color=green)](https://f-droid.org/app/net.fabiszewski.ulogger)
+## Self-check
+In case of problems, you may go to Self-check menu. It will check whether all necessary permissions are granted and all settings are properly configured.
+
+<img alt="self-check" src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot7.png" width="30%">
 
 ## Help
 - μlogger's current status is shown by two leds, one for location tracking and one for web synchronization: 
@@ -35,23 +41,28 @@ led | tracking | synchronization
 - clicking on current track's name will show track statistics
 
 ## Automating
-- μlogger may accept commands from other applications for starting or stopping its operations. To make it work you must explicitly enable this functionality in app settings ("Allow external commands" switch). 
+- μlogger may accept commands from other applications for starting or stopping its operations. To make it work you must explicitly enable this functionality in app settings ("Allow external commands" switch).
 - commands are sent as `broadcasts` with following `intent` parameters:
   - target package: `net.fabiszewski.ulogger`
   - target class: `net.fabiszewski.ulogger.ExternalCommandReceiver`
   - action: `net.fabiszewski.ulogger.intent.action.COMMAND`
-  - extra: `"command": [command name]`, where command name is one of: 
-    - `"start logger"` for starting position logging
-    - `"start new logger"` for creating a New Track and starting position logging to it 
-    - `"stop logger"` for stopping position logging
-    - `"start upload"` for starting track data upload to server (in case live tracking is off)
+  - extra: 
+    - `command: [command name]` (string value), where command name is one of: 
+      - `"start logger"` for starting position logging
+      - `"start new logger"` for creating a new track and starting position logging to it 
+      - `"stop logger"` for stopping position logging
+      - `"start upload"` for starting track data upload to server (in case live tracking is off)
+    - `overwrite: [true|false]` (boolean value), optional parameter for `start new logger` command:
+      - `true` (default) to ignore not synchronized track and overwrite it with new one
+      - `false` to abort if creating new track would overwrite not synchronized positions
 - third party examples:
   - Automate (LlamaLab) – Send broadcast block with `Package`, `Receiver Class` and `Action` fields as above and `Extras` field eg. `{"command": "start logger"}`
   - Tasker (joaomgcd) – System → Send intent. Fields `Action`, `Package`, `Class` as above and `Extra` field eg. `command:start logger`
-- command line: `am broadcast -a net.fabiszewski.ulogger.intent.action.COMMAND -e "command" "start logger" net.fabiszewski.ulogger net.fabiszewski.ulogger.ExternalCommandReceiver`
+- command line: `am broadcast -a net.fabiszewski.ulogger.intent.action.COMMAND --es command "start new logger" --ez overwrite false net.fabiszewski.ulogger net.fabiszewski.ulogger.ExternalCommandReceiver`
 
 ## Location permissions
 Starting with Android 11, if you want to use the application without user interaction (automating, autostart on boot), it is necessary to grant application background location permission ("Allow all the time" option).
+In case of automation the controlling application must also have the same background location permission granted.
 In all other cases, when you start tracking from app screen, it is enough to grant "Allow only while using the app" option.
 
 ## Battery optimization
@@ -62,10 +73,10 @@ On Android 12+ the application will refuse to start from background without user
 Finding the optimized settings for your practice can be a bit complex and may require you to do a lot of testing.
 As a first approach, here are some parameters that offer a good compromise between precision and the number of points acquired by your server.
 
-| Activity | Time | Distance | Accuracy | Provider |
-|---|---|---|---|---|
-| **hiking/cycling** | 30 seconds | 100m | 100m | GPS + Network |
-| **motorbiking** | 1 minute | 500m | 50m | GPS + Network |
+| Activity           | Time       | Distance | Accuracy | Provider      |
+|--------------------|------------|----------|----------|---------------|
+| **hiking/cycling** | 30 seconds | 100m     | 100m     | GPS + Network |
+| **motorbiking**    | 1 minute   | 500m     | 50m      | GPS + Network |
 
 They may not be optimal, depending on your feelings, and you will have to adapt them.
 

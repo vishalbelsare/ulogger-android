@@ -92,7 +92,7 @@ public class LoggerService extends Service {
             locationHelper.updatePreferences();
             locationHelper.requestLocationUpdates(locationListener, looper);
             setRunning(true);
-            sendBroadcast(BROADCAST_LOCATION_STARTED);
+            BroadcastHelper.sendBroadcast(this, BROADCAST_LOCATION_STARTED);
 
             syncIntent = new Intent(getApplicationContext(), WebSyncService.class);
 
@@ -103,9 +103,9 @@ public class LoggerService extends Service {
         } catch (LocationHelper.LoggerException e) {
             int errorCode = e.getCode();
             if (errorCode == E_DISABLED) {
-                sendBroadcast(BROADCAST_LOCATION_DISABLED);
+                BroadcastHelper.sendBroadcast(this, BROADCAST_LOCATION_DISABLED);
             } else if (errorCode == E_PERMISSION) {
-                sendBroadcast(BROADCAST_LOCATION_PERMISSION_DENIED);
+                BroadcastHelper.sendBroadcast(this, BROADCAST_LOCATION_PERMISSION_DENIED);
             }
         }
         return false;
@@ -127,8 +127,16 @@ public class LoggerService extends Service {
             handlePrefsUpdated();
         } else {
             final Notification notification = notificationHelper.showNotification();
-            startForeground(notificationHelper.getId(), notification);
-            if (!initializeLocationUpdates()) {
+            boolean isForeground = false;
+            try {
+                startForeground(notificationHelper.getId(), notification);
+                isForeground = true;
+            } catch (SecurityException e) {
+                if (Logger.DEBUG) { Log.d(TAG, "[SecurityException on startForeground: " + e.getMessage() + "]"); }
+                BroadcastHelper.sendBroadcast(this, BROADCAST_LOCATION_PERMISSION_DENIED);
+            }
+
+            if (!isForeground || !initializeLocationUpdates()) {
                 setRunning(false);
                 stopSelf();
             }
@@ -179,7 +187,7 @@ public class LoggerService extends Service {
         setRunning(false);
 
         notificationHelper.cancelNotification();
-        sendBroadcast(BROADCAST_LOCATION_STOPPED);
+        BroadcastHelper.sendBroadcast(this, BROADCAST_LOCATION_STOPPED);
 
         if (thread != null) {
             thread.interrupt();
@@ -233,15 +241,6 @@ public class LoggerService extends Service {
     }
 
     /**
-     * Send broadcast message
-     * @param broadcast Broadcast message
-     */
-    private void sendBroadcast(String broadcast) {
-        Intent intent = new Intent(broadcast);
-        sendBroadcast(intent);
-    }
-
-    /**
      * Location listener class
      */
     private class mLocationListener implements LocationListener {
@@ -259,7 +258,7 @@ public class LoggerService extends Service {
             if (meetsCriteria(location)) {
                 lastLocation = location;
                 DbAccess.writeLocation(LoggerService.this, location);
-                sendBroadcast(BROADCAST_LOCATION_UPDATED);
+                BroadcastHelper.sendBroadcast(LoggerService.this, BROADCAST_LOCATION_UPDATED);
                 if (locationHelper.isLiveSync()) {
                     getApplicationContext().startService(syncIntent);
                 }
@@ -309,12 +308,12 @@ public class LoggerService extends Service {
         public void onProviderDisabled(@NonNull String provider) {
             if (Logger.DEBUG) { Log.d(TAG, "[location provider " + provider + " disabled]"); }
             if (provider.equals(LocationManager.GPS_PROVIDER)) {
-                sendBroadcast(BROADCAST_LOCATION_GPS_DISABLED);
+                BroadcastHelper.sendBroadcast(LoggerService.this, BROADCAST_LOCATION_GPS_DISABLED);
             } else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
-                sendBroadcast(BROADCAST_LOCATION_NETWORK_DISABLED);
+                BroadcastHelper.sendBroadcast(LoggerService.this, BROADCAST_LOCATION_NETWORK_DISABLED);
             }
             if (!locationHelper.hasEnabledProviders()) {
-                sendBroadcast(BROADCAST_LOCATION_DISABLED);
+                BroadcastHelper.sendBroadcast(LoggerService.this, BROADCAST_LOCATION_DISABLED);
             }
         }
 
@@ -326,9 +325,9 @@ public class LoggerService extends Service {
         public void onProviderEnabled(@NonNull String provider) {
             if (Logger.DEBUG) { Log.d(TAG, "[location provider " + provider + " enabled]"); }
             if (provider.equals(LocationManager.GPS_PROVIDER)) {
-                sendBroadcast(BROADCAST_LOCATION_GPS_ENABLED);
+                BroadcastHelper.sendBroadcast(LoggerService.this, BROADCAST_LOCATION_GPS_ENABLED);
             } else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
-                sendBroadcast(BROADCAST_LOCATION_NETWORK_ENABLED);
+                BroadcastHelper.sendBroadcast(LoggerService.this, BROADCAST_LOCATION_NETWORK_ENABLED);
             }
         }
 

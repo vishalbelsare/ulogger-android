@@ -8,7 +8,6 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="button_newtrack">Ibilbide berria</string>
     <string name="button_upload">Igo</string>
     <string name="is_running" comment="substituted app_name">%s martxan dago</string>
     <string name="title_newtrack">Ibilbide berria</string>
@@ -134,4 +133,4 @@
     <string name="tracking">Jarraipena egiten</string>
     <string name="clear">Ibilbidea garbitu</string>
     <string name="share_link">Ibilbidearen lotura partekatu</string>
-</resources>
+    </resources>

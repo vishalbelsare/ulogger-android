@@ -33,20 +33,13 @@ public class ExternalCommandReceiver extends BroadcastReceiver {
         }
         if (intent != null) {
             String command = intent.getStringExtra("command");
+            boolean overwrite = intent.getBooleanExtra("overwrite", true);
             if (command != null) {
                 switch (command) {
-                    case START_LOGGER:
-                        startLoggerService(context);
-                        break;
-                    case START_NEW_LOGGER:
-                        startNewLoggerService(context);
-                        break;
-                    case STOP_LOGGER:
-                        stopLogger(context);
-                        break;
-                    case START_UPLOAD:
-                        uploadData(context);
-                        break;
+                    case START_LOGGER -> startLoggerService(context);
+                    case START_NEW_LOGGER -> startNewLoggerService(context, overwrite);
+                    case STOP_LOGGER -> stopLogger(context);
+                    case START_UPLOAD -> uploadData(context);
                 }
             }
         }
@@ -56,10 +49,12 @@ public class ExternalCommandReceiver extends BroadcastReceiver {
      * Start logger service forcing new track
      * @param context Context
      */
-    private void startNewLoggerService(Context context) {
-        DbAccess.newTrack(context, AutoNamePreference.getAutoTrackName(context));
-        Intent intent = new Intent(context, LoggerService.class);
-        ContextCompat.startForegroundService(context, intent);
+    private void startNewLoggerService(Context context, boolean overwrite) {
+        if (overwrite || !DbAccess.needsSync(context)) {
+            DbAccess.newTrack(context, AutoNamePreference.getAutoTrackName(context));
+            Intent intent = new Intent(context, LoggerService.class);
+            ContextCompat.startForegroundService(context, intent);
+        }
     }
 
     /**

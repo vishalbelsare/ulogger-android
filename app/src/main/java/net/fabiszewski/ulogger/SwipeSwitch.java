@@ -47,4 +47,5 @@ public class SwipeSwitch extends SwitchCompat {
         }
         return ret;
     }
+
 }

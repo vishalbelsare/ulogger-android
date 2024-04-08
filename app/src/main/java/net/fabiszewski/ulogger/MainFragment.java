@@ -12,7 +12,6 @@ package net.fabiszewski.ulogger;
 import static net.fabiszewski.ulogger.Alert.showAlert;
 import static net.fabiszewski.ulogger.Alert.showConfirm;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,7 +21,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -36,8 +34,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -48,16 +44,12 @@ import androidx.fragment.app.FragmentTransaction;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
-@SuppressWarnings("WeakerAccess")
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements PermissionHelper.PermissionRequester {
 
     private final String TAG = MainFragment.class.getSimpleName();
 
@@ -85,7 +77,11 @@ public class MainFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    final PermissionHelper permissionHelper;
+
+
     public MainFragment() {
+        permissionHelper = new PermissionHelper(this, this);
     }
 
     static MainFragment newInstance() {
@@ -543,17 +539,9 @@ public class MainFragment extends Fragment {
     private void setLedColor(TextView led, int color) {
         Drawable l = TextViewCompat.getCompoundDrawablesRelative(led)[0];
         switch (color) {
-            case LED_RED:
-                l.setColorFilter(redFilter);
-                break;
-
-            case LED_GREEN:
-                l.setColorFilter(greenFilter);
-                break;
-
-            case LED_YELLOW:
-                l.setColorFilter(yellowFilter);
-                break;
+            case LED_RED -> l.setColorFilter(redFilter);
+            case LED_GREEN -> l.setColorFilter(greenFilter);
+            case LED_YELLOW -> l.setColorFilter(yellowFilter);
         }
         l.invalidateSelf();
     }
@@ -602,6 +590,20 @@ public class MainFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onPermissionGranted(@Nullable String requestCode) {
+        if (Logger.DEBUG) { Log.d(TAG, "[LocationPermission: granted]"); }
+        Context context = getContext();
+        if (context != null) {
+            startLogger(context);
+        }
+    }
+
+    @Override
+    public void onPermissionDenied(@Nullable String requestCode) {
+        if (Logger.DEBUG) { Log.d(TAG, "[LocationPermission: denied]"); }
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -632,7 +634,7 @@ public class MainFragment extends Fragment {
             filter.addAction(LoggerService.BROADCAST_LOCATION_PERMISSION_DENIED);
             filter.addAction(WebSyncService.BROADCAST_SYNC_DONE);
             filter.addAction(WebSyncService.BROADCAST_SYNC_FAILED);
-            context.registerReceiver(broadcastReceiver, filter);
+            ContextCompat.registerReceiver(context, broadcastReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
         }
     }
 
@@ -648,14 +650,14 @@ public class MainFragment extends Fragment {
             }
             MainActivity activity = (MainActivity) getActivity();
             switch (intent.getAction()) {
-                case LoggerService.BROADCAST_LOCATION_UPDATED:
+                case LoggerService.BROADCAST_LOCATION_UPDATED -> {
                     updateLocationLabel(LoggerService.lastUpdateRealtime());
                     setLocLed(LED_GREEN);
                     if (activity != null && !activity.preferenceLiveSync) {
                         updateSyncStatus(DbAccess.countUnsynced(context));
                     }
-                    break;
-                case WebSyncService.BROADCAST_SYNC_DONE:
+                }
+                case WebSyncService.BROADCAST_SYNC_DONE -> {
                     final int unsyncedCount = DbAccess.countUnsynced(context);
                     updateSyncStatus(unsyncedCount);
                     setSyncLed(LED_GREEN);
@@ -669,8 +671,8 @@ public class MainFragment extends Fragment {
                     if (buttonShare.getVisibility() == View.GONE) {
                         buttonShare.setVisibility(View.VISIBLE);
                     }
-                    break;
-                case (WebSyncService.BROADCAST_SYNC_FAILED): {
+                }
+                case (WebSyncService.BROADCAST_SYNC_FAILED) -> {
                     updateSyncStatus(DbAccess.countUnsynced(context));
                     setSyncLed(LED_RED);
                     // set error flag and label
@@ -681,67 +683,36 @@ public class MainFragment extends Fragment {
                         showToast(getString(R.string.uploading_failed) + "\n" + message);
                         isUploading = false;
                     }
-                    break;
                 }
-                case LoggerService.BROADCAST_LOCATION_STARTED:
+                case LoggerService.BROADCAST_LOCATION_STARTED -> {
                     switchLogger.setChecked(true);
                     showToast(getString(R.string.tracking_started));
                     setLocLed(LED_YELLOW);
-                    break;
-                case LoggerService.BROADCAST_LOCATION_STOPPED:
+                }
+                case LoggerService.BROADCAST_LOCATION_STOPPED -> {
                     switchLogger.setChecked(false);
                     showToast(getString(R.string.tracking_stopped));
                     setLocLed(LED_RED);
-                    break;
-                case LoggerService.BROADCAST_LOCATION_GPS_DISABLED:
-                    showToast(getString(R.string.gps_disabled_warning));
-                    break;
-                case LoggerService.BROADCAST_LOCATION_NETWORK_DISABLED:
-                    showToast(getString(R.string.net_disabled_warning));
-                    break;
-                case LoggerService.BROADCAST_LOCATION_DISABLED:
+                }
+                case LoggerService.BROADCAST_LOCATION_GPS_DISABLED ->
+                        showToast(getString(R.string.gps_disabled_warning));
+                case LoggerService.BROADCAST_LOCATION_NETWORK_DISABLED ->
+                        showToast(getString(R.string.net_disabled_warning));
+                case LoggerService.BROADCAST_LOCATION_DISABLED -> {
                     showToast(getString(R.string.location_disabled));
                     setLocLed(LED_RED);
-                    break;
-                case LoggerService.BROADCAST_LOCATION_NETWORK_ENABLED:
-                    showToast(getString(R.string.using_network));
-                    break;
-                case LoggerService.BROADCAST_LOCATION_GPS_ENABLED:
-                    showToast(getString(R.string.using_gps));
-                    break;
-                case LoggerService.BROADCAST_LOCATION_PERMISSION_DENIED:
+                }
+                case LoggerService.BROADCAST_LOCATION_NETWORK_ENABLED ->
+                        showToast(getString(R.string.using_network));
+                case LoggerService.BROADCAST_LOCATION_GPS_ENABLED ->
+                        showToast(getString(R.string.using_gps));
+                case LoggerService.BROADCAST_LOCATION_PERMISSION_DENIED -> {
                     showToast(getString(R.string.location_permission_denied));
                     setLocLed(LED_RED);
-                    List<String> permissions = new ArrayList<>();
-                    permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        // On Android 12+ coarse location permission must be also requested
-                        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-                    }
-                    requestLocationPermission.launch(permissions.toArray(new String[0]));
-                    break;
+                    permissionHelper.requestFineLocationPermission();
+                }
             }
         }
     };
-
-    /**
-     * Request location permission, on granted start logger service
-     */
-    final ActivityResultLauncher<String[]> requestLocationPermission = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), results -> {
-        if (Logger.DEBUG) { Log.d(TAG, "[requestLocationPermission: " + results.entrySet() + "]"); }
-        boolean isGranted = false;
-        for (Map.Entry<String, Boolean> result : results.entrySet()) {
-            if (result.getValue()) {
-                isGranted = true;
-            }
-        }
-        if (isGranted) {
-            if (Logger.DEBUG) { Log.d(TAG, "[LocationPermission: granted]"); }
-            Context context = getContext();
-            if (context != null) {
-                startLogger(context);
-            }
-        }
-    });
 
 }

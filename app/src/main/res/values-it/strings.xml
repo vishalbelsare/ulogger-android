@@ -8,7 +8,6 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="button_newtrack">Nuova traccia</string>
     <string name="button_upload">Carica</string>
     <string name="is_running" comment="substituted app_name">%s è in esecuzione</string>
     <string name="is_uploading" comment="substituted app_name">%s sta caricando le posizioni</string>
@@ -76,6 +75,7 @@
     <string name="summary_distance" comment="1-distance, 2-unit name">%1$s %2$s</string>
     <plurals name="summary_positions">
         <item quantity="one">%d posizione</item>
+        <item quantity="many">%d posizioni</item>
         <item quantity="other">%d posizioni</item>
     </plurals>
     <string name="summary_duration">%1$d h %2$d min</string>
@@ -106,6 +106,7 @@
     <string name="export_started">Esportazione iniziata</string>
     <plurals name="label_positions_behind">
         <item quantity="one">%d posizione indietro</item>
+        <item quantity="many">%d posizioni indietro</item>
         <item quantity="other">%d posizioni indietro</item>
     </plurals>
     <string name="track_server_setup_warning">Se cambi impostazioni del server potresti non avere la possibilità di sincronizzare la traccia corrente.</string>
@@ -138,4 +139,4 @@
     <string name="image_task_failed">Ridimensionamento dell\'immagine fallito</string>
     <string name="background_location_rationale">I permessi di localizzazione in background sono necessari solamente quando il tracciamento inizia senza l\'interazione dell\'utente: attraverso un comando esterno oppure quando un\'applicazione è automaticamente avviata all\'accensione del dispositivo.\nPer avviare questa funzionalità va scelta l\'opzione \"%s\" nella finestra di dialogo dei permessi di localizzazione.\nProcedere ai permessi dell\'applicazione?</string>
     <string name="background_location_required">Sono necessari i permessi di localizzazione in background</string>
-</resources>
+    </resources>

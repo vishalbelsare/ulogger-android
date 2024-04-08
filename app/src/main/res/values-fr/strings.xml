@@ -8,7 +8,6 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="button_newtrack">Nouvelle trace</string>
     <string name="button_upload">Envoyer</string>
     <string name="is_running" comment="substituted app_name">%s est lancé</string>
     <string name="is_uploading" comment="substituted app_name">%s envoie des positions</string>
@@ -76,7 +75,7 @@
     <string name="summary_distance" comment="1-distance, 2-unit name">%1$s %2$s</string>
     <plurals name="summary_positions">
         <item quantity="one">%d position</item>
-        <item quantity="many">%d de positions</item>
+        <item quantity="many">%d positions</item>
         <item quantity="other">%d positions</item>
     </plurals>
     <string name="summary_duration">%1$d h %2$d min</string>
@@ -107,7 +106,7 @@
     <string name="export_started">Export débuté</string>
     <plurals name="label_positions_behind">
         <item quantity="one">%d position en attente</item>
-        <item quantity="many">%d de positions en attente</item>
+        <item quantity="many">%d positions en attente</item>
         <item quantity="other">%d positions en attente</item>
     </plurals>
     <string name="track_server_setup_warning">Si vous modifiez la configuration du serveur, vous ne pourrez peut-être pas synchroniser la trace en cours.</string>
@@ -140,4 +139,18 @@
     <string name="image_task_failed">Le redimensionnement des images a échoué</string>
     <string name="background_location_rationale">L\'autorisation de la localisation en arrière-plan est nécessaire lors d\'un enregistrement sans interaction utilisateur : quand l\'application est automatiquement lancée au démarrage du système ou démarrée par une commande externe.\nPour que la localisation fonctionne, vous devez sélectionner l\'option \"%s\" qui vous sera proposée.\nAller vers les autorisations accordées à l\'application ?</string>
     <string name="background_location_required">Autorisation de localisation en arrière-plan requise</string>
+    <string name="label_self_check">Auto contrôle</string>
+    <string name="self_check_approximate_location_rationale">Requis : sans cette autorisation, il ne sera pas possible de vous localiser.</string>
+    <string name="self_check_precise_location_rationale">Optionnel : doit être activé pour utiliser la localisation précise du GPS</string>
+    <string name="self_check_background_location_rationale">Optionnel : Nécessaire uniquement lorsque l\'application est lancée de manière automatisée*.</string>
+    <string name="self_check_storage_rationale">Optionnel : nécessaire uniquement si vous souhaitez joindre des images de l\'appareil photo aux points de cheminement.</string>
+    <string name="self_check_notifications_rationale">Optionnel : si autorisé, vous serez informé du fonctionnement de l\'application en arrière-plan.</string>
+    <string name="self_check_battery_unrestricted_rationale">Optionnel mais fortement recommandé. Si non autorisé, le système peut arrêter l\'application lorsqu\'elle fonctionne en arrière-plan afin d\'économiser la batterie. Nécessaire pour une utilisation automatisée*</string>
+    <string name="self_check_battery_unrestricted_title">Utilisation sans restriction de la batterie</string>
+    <string name="self_check_permissions_title">Permissions</string>
+    <string name="self_check_providers_title">Services de localisation</string>
+    <string name="self_check_server_configured">Serveur configuré</string>
+    <string name="self_check_server_reachable">Serveur joignable</string>
+    <string name="self_check_valid_server_account">Compte valide sur le serveur</string>
+    <string name="self_check_automated_usage">* Utilisation automatisée : démarrage de la journalisation sans interaction de l\'utilisateur à partir d\'une application externe ou au démarrage du système.</string>
 </resources>

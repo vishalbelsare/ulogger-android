@@ -123,13 +123,15 @@ public class ProviderPreferenceDialogFragment extends ListPreferenceDialogWithMe
      * Get default layout for single choice dialog
      * @return Layout resource id
      */
+    @SuppressWarnings("resource")
     @SuppressLint("PrivateResource")
+    // Don't use auto-closable, breaks lower APIs
     private int getSingleChoiceLayoutResource() {
         int resId = android.R.layout.select_dialog_singlechoice;
         final Context context = getContext();
         if (context != null) {
             final TypedArray typedArray = context.obtainStyledAttributes(null, R.styleable.AlertDialog,
-                    R.attr.alertDialogStyle, 0);
+                    androidx.appcompat.R.attr.alertDialogStyle, 0);
             resId = typedArray.getResourceId(R.styleable.AlertDialog_singleChoiceItemLayout, resId);
             typedArray.recycle();
         }

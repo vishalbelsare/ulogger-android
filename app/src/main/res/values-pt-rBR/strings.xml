@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2022 Bartek Fabiszewski
+  ~ Copyright (c) 2017 Bartek Fabiszewski
   ~ http://www.fabiszewski.net
   ~
   ~ This file is part of μlogger-android.
@@ -8,7 +8,6 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="button_newtrack">Novo caminho</string>
     <string name="button_upload">Enviar</string>
     <string name="is_running" comment="substituted app_name">%s está funcionando</string>
     <string name="is_uploading" comment="substituted app_name">%s está enviando posições</string>
@@ -76,6 +75,7 @@
     <string name="summary_distance" comment="1-distance, 2-unit name">%1$s %2$s</string>
     <plurals name="summary_positions">
         <item quantity="one">%d posição</item>
+        <item quantity="many">%d posições</item>
         <item quantity="other">%d posições</item>
     </plurals>
     <string name="summary_duration">%1$d h %2$d min</string>
@@ -106,6 +106,7 @@
     <string name="export_started">A exportação começou</string>
     <plurals name="label_positions_behind">
         <item quantity="one">%d posição pendente</item>
+        <item quantity="many">%d posições pendentes</item>
         <item quantity="other">%d posições pendentes</item>
     </plurals>
     <string name="track_server_setup_warning">Se você mudar a configuração do servidor, pode ser que não consiga sincronizar o caminho atual.</string>
@@ -138,4 +139,4 @@
     <string name="image_task_failed">Erro ao redimensionar a imagem</string>
     <string name="background_location_rationale">A permissão de localização em segundo plano só é necessária quando o rastreamento é iniciado sem interação de usuário: através de comando externo ou quando o app é automaticamente executado na inicialização do sistema.\nPara que esta funcionalidade funcione, você deve selecionar a opção \"%s\" no aviso sobre permissão de localização.\nProsseguir para as permissões do app?</string>
     <string name="background_location_required">Necessária a permissão de localização em segundo plano</string>
-</resources>
+    </resources>
